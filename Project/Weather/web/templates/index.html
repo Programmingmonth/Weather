@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Weather Project</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+            color: white;
+        }
+
+        .container {
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 3D Background */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 20px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6bdf, #ffc400);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #4ecdc4;
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-content {
+            z-index: 10;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #ff00ea);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Weather Cards Section */
+        .weather-section {
+            padding: 100px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .weather-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .weather-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(50px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .weather-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .weather-card:hover::before {
+            animation: shine 0.8s ease-in-out;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .weather-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .weather-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .weather-temp {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .weather-location {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #bbb;
+        }
+
+        .weather-description {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .feature-item {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #ff6b6b, #fffc38);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-description {
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        /* Floating Elements */
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-element {
+            position: absolute;
+            opacity: 0.7;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .cloud {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            width: 100px;
+            height: 40px;
+        }
+
+        .cloud::before,
+        .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+
+        .cloud::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 80px;
+            height: 80px;
+            top: -40px;
+            right: 10px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1.2rem; }
+            .nav-links { display: none; }
+            .weather-grid { grid-template-columns: 1fr; }
+            .section-title { font-size: 2rem; }
+        }
+
+        /* Loading Animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <h2>Loading...</h2>
+        </div>
+    </div>
+
+    <!-- Three.js Canvas -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Floating Elements -->
+    <div class="floating-elements">
+        <div class="floating-element cloud" style="top: 20%; left: 10%;"></div>
+        <div class="floating-element cloud" style="top: 60%; right: 15%;"></div>
+        <div class="floating-element cloud" style="top: 80%; left: 70%;"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <nav class="nav">
+                <div class="logo">🌤️ WeatherApp</div>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#weather">Weather</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <h1>Accurate Weather Forecasting</h1>
+                <p>Complete and up-to-date weather information for all locations worldwide</p>
+                <button class="cta-button">Get Started</button>
+            </div>
+        </section>
+
+        <!-- Weather Section -->
+        <section class="weather-section" id="weather">
+            <div class="weather-container">
+                <h2 class="section-title">Current Weather Conditions</h2>
+                <div class="weather-grid">
+                    <div class="weather-card">
+                        <span class="weather-icon">☀️</span>
+                        <div class="weather-temp">16°C</div>
+                        <div class="weather-location">London</div>
+                        <div class="weather-description">Clear and sunny skies</div>
+                    </div>
+                    <div class="weather-card">
+                        <span class="weather-icon">☀️</span>
+                        <div class="weather-temp">11°C</div>
+                        <div class="weather-location">Norway</div>
+                        <div class="weather-description">Clear and sunny skies</div>
+                    </div>
+                    <div class="weather-card">
+                        <span class="weather-icon">☀️</span>
+                        <div class="weather-temp">15°C</div>
+                        <div class="weather-location">Denmark</div>
+                        <div class="weather-description">Clear and sunny skies</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <div class="weather-container">
+                <h2 class="section-title">Unique Features</h2>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <h3 class="feature-title">Accurate Forecasting</h3>
+                        <p class="feature-description">High-precision weather forecasting up to 7 days ahead</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🌍</div>
+                        <h3 class="feature-title">Global Coverage</h3>
+                        <p class="feature-description">Weather information for all locations worldwide</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <h3 class="feature-title">Fast Updates</h3>
+                        <p class="feature-description">Real-time weather data updates every minute</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📱</div>
+                        <h3 class="feature-title">Beautiful Interface</h3>
+                        <p class="feature-description">Modern and user-friendly design for all devices</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Three.js Setup
+        let scene, camera, renderer, particles;
+
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            // Create particles
+            const geometry = new THREE.BufferGeometry();
+            const particlesCount = 500;
+            const positions = new Float32Array(particlesCount * 3);
+
+            for (let i = 0; i < particlesCount * 3; i++) {
+                positions[i] = (Math.random() - 0.5) * 10;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const material = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.02,
+                opacity: 0.8,
+                transparent: true
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            camera.position.z = 5;
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            particles.rotation.x += 0.001;
+            particles.rotation.y += 0.001;
+            
+            renderer.render(scene, camera);
+        }
+
+        // GSAP Animations
+        function initAnimations() {
+            // Timeline for page load
+            const tl = gsap.timeline();
+            
+            // Hero animations
+            tl.to(".hero h1", { duration: 1, opacity: 1, y: 0, ease: "power3.out" })
+              .to(".hero p", { duration: 1, opacity: 1, y: 0, ease: "power3.out" }, "-=0.7")
+              .to(".cta-button", { duration: 1, opacity: 1, y: 0, ease: "power3.out" }, "-=0.7");
+
+            // Scroll-triggered animations
+            gsap.registerPlugin(ScrollTrigger);
+
+            gsap.to(".section-title", {
+                scrollTrigger: {
+                    trigger: ".section-title",
+                    start: "top 80%"
+                },
+                duration: 1,
+                opacity: 1,
+                y: 0,
+                ease: "power3.out"
+            });
+
+            gsap.to(".weather-card", {
+                scrollTrigger: {
+                    trigger: ".weather-grid",
+                    start: "top 80%"
+                },
+                duration: 1,
+                opacity: 1,
+                y: 0,
+                stagger: 0.2,
+                ease: "power3.out"
+            });
+
+            gsap.to(".feature-item", {
+                scrollTrigger: {
+                    trigger: ".features-grid",
+                    start: "top 80%"
+                },
+                duration: 1,
+                opacity: 1,
+                y: 0,
+                stagger: 0.15,
+                ease: "power3.out"
+            });
+
+            // Parallax effects
+            gsap.to(".floating-element", {
+                duration: 20,
+                rotation: 360,
+                repeat: -1,
+                ease: "none"
+            });
+
+            // Button hover animations
+            document.querySelectorAll(".cta-button").forEach(button => {
+                button.addEventListener("mouseenter", () => {
+                    gsap.to(button, { duration: 0.3, scale: 1.05, ease: "power2.out" });
+                });
+                
+                button.addEventListener("mouseleave", () => {
+                    gsap.to(button, { duration: 0.3, scale: 1, ease: "power2.out" });
+                });
+            });
+        }
+
+        // Initialize everything
+        window.addEventListener('load', () => {
+            // Hide loader
+            gsap.to("#loader", { duration: 0.5, opacity: 0, onComplete: () => {
+                document.getElementById('loader').style.display = 'none';
+            }});
+
+            // Initialize Three.js and animations
+            initThree();
+            initAnimations();
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    gsap.to(window, { duration: 1, scrollTo: target, ease: "power2.inOut" });
+                }
+            });
+        });
+
+        // Dynamic weather updates (example)
+        function updateWeatherData() {
+            const temps = ['22°C', '28°C', '15°C'];
+            const conditions = ['Sunny', 'Cloudy', 'Rainy'];
+            const icons = ['☀️', '⛅', '🌧️'];
+
+            document.querySelectorAll('.weather-card').forEach((card, index) => {
+                const temp = card.querySelector('.weather-temp');
+                const desc = card.querySelector('.weather-description');
+                const icon = card.querySelector('.weather-icon');
+
+                // Animate changes
+                gsap.to(temp, { duration: 0.5, opacity: 0, onComplete: () => {
+                    temp.textContent = temps[Math.floor(Math.random() * temps.length)];
+                    gsap.to(temp, { duration: 0.5, opacity: 1 });
+                }});
+            });
+        }
+
+        // Update weather data every 30 seconds (example)
+        setInterval(updateWeatherData, 30000);
+    </script>
+
+    <!-- ScrollTrigger Plugin -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</body>
+</html>
