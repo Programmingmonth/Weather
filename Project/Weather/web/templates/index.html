@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>3D Weather Project</title>
+    <title>Weather</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -114,14 +114,9 @@
       }
 
       .nav-links a:hover {
-        color: #4ecdc4;
-        background: linear-gradient(
-          135deg,
-          rgba(255, 107, 107, 0.2),
-          rgba(78, 205, 196, 0.2)
-        );
+        color: #ffcc00;
         transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 10px 50px #0066ffb3;
       }
 
       /* Mobile Menu Toggle */
@@ -711,6 +706,128 @@
         text-align: center;
         display: none;
       }
+
+      .footer {
+        background: linear-gradient(90deg, #ffee96f3, #e326a76d);
+        padding: 1rem 0;
+        color: white;
+        position: relative;
+        z-index: 10;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+      }
+
+      .footer-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0 10px;
+      }
+
+      .footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .footer-logo .logo {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #8c00ff, #ffcc00, #00d0ff, #f093fb);
+        background-size: 300% 300%;
+        animation: gradientShift 4s ease infinite;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .footer-link {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+        padding: 5px 10px;
+        border-radius: 20px;
+      }
+
+      .footer-link:hover {
+        color: #ffcc00;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .footer-socials {
+        display: flex;
+        gap: 8px;
+      }
+
+      .social-icon {
+        font-size: 1.2rem;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        padding: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .social-icon:hover {
+        color: #ffcc00;
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .footer-copyright {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        margin-top: 0.3rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .footer-links {
+          gap: 8px;
+        }
+        .footer-link {
+          font-size: 0.8rem;
+          padding: 4px 8px;
+        }
+        .footer-logo .logo {
+          font-size: 1.4rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .footer-links {
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+        }
+        .footer-socials {
+          gap: 6px;
+        }
+        .social-icon {
+          font-size: 1rem;
+          padding: 5px;
+        }
+        .footer-copyright {
+          font-size: 0.7rem;
+        }
+      }
     </style>
   </head>
   <body>
@@ -849,6 +966,34 @@
         </div>
       </section>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <span class="logo">
+              <span>🌤️</span>
+              <span>WeatherApp</span>
+            </span>
+          </div>
+          <div class="footer-links">
+            <a href="#home" class="footer-link">Home</a>
+            <a href="#weather" class="footer-link">Weather</a>
+            <a href="#features" class="footer-link">Features</a>
+            <a href="#contact" class="footer-link">Contact</a>
+          </div>
+          <div class="footer-socials">
+            <a href="#" class="social-icon">📱</a>
+            <a href="#" class="social-icon">🐦</a>
+            <a href="#" class="social-icon">📸</a>
+          </div>
+          <div class="footer-copyright">
+            <p>© 2025 WeatherApp. Designed with 🌤️ and ❤️</p>
+          </div>
+        </div>
+      </div>
+    </footer>
 
     <script>
       // Global variables
